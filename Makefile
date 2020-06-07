@@ -4,26 +4,17 @@ DOCKER_IMAGE_BASE:=base
 DOCKER_IMAGE_OPENRC:=openrc
 DOCKER_IMAGE_RUNIT:=runit
 
-BUILDDIR=build
-PWD=$(shell pwd)
-
-hooks:
-	mkdir -p alpm-hooks/usr/share/libalpm/hooks
-	find /usr/share/libalpm/hooks -exec ln -s /dev/null $(PWD)/alpm-hooks{} \;
-
-rootfs: hooks
-	mkdir -vp $(BUILDDIR)/var/lib/pacman/
-	fakechroot -- fakeroot -- pacman -Sy -r $(BUILDDIR) \
-		--noconfirm --dbpath $(PWD)/$(BUILDDIR)/var/lib/pacman \
-		--config pacman.conf \
-		--noscriptlet \
-		--hookdir $(PWD)/alpm-hooks/usr/share/libalpm/hooks/ $(shell cat packages)
-	cp --recursive --preserve=timestamps --backup --suffix=.pacnew rootfs/* $(BUILDDIR)/
-	
-	sed -i -e 's/^root::/root:!:/' "$(BUILDDIR)/etc/shadow"
-
-	fakeroot -- tar --numeric-owner --xattrs --acls --exclude-from=exclude -C $(BUILDDIR) -c . -f dockerfile/base/artixlinux.tar
-	rm -rf $(BUILDDIR) alpm-hooks
+rootfs:
+	$(eval TMPDIR := $(shell mktemp -d))
+	cp pacman.conf rootfs/etc/pacman.conf
+	env -i basestrap -C rootfs/etc/pacman.conf -c -G -M $(TMPDIR) $(shell cat packages)
+	cp --recursive --preserve=timestamps --backup --suffix=.pacnew rootfs/* $(TMPDIR)/
+	artools-chroot $(TMPDIR) locale-gen
+	artools-chroot $(TMPDIR) pacman-key --init
+	artools-chroot $(TMPDIR) pacman-key --populate artix
+	artools-chroot $(TMPDIR) pacman-key --populate archlinux
+	tar --numeric-owner --xattrs --acls --exclude-from=exclude -C $(TMPDIR) -c . -f dockerfile/base/artixlinux.tar
+	rm -rf $(TMPDIR)
 
 docker-image: rootfs
 	docker build -t $(DOCKER_ORGANIZATION)/$(DOCKER_IMAGE_BASE) ./dockerfile/base
@@ -45,4 +36,4 @@ docker-push:
 	docker push $(DOCKER_ORGANIZATION)/$(DOCKER_IMAGE_OPENRC)
 	docker push $(DOCKER_ORGANIZATION)/$(DOCKER_IMAGE_RUNIT)
 
-.PHONY: hooks rootfs docker-image docker-image-test docker-push
+.PHONY: rootfs docker-image docker-image-test docker-push
