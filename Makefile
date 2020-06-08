@@ -6,12 +6,11 @@ DOCKER_IMAGE_RUNIT:=runit
 
 rootfs:
 	$(eval TMPDIR := $(shell mktemp -d))
-	cp pacman.conf rootfs/etc/pacman.conf
 	env -i basestrap -C rootfs/etc/pacman.conf -c -G -M $(TMPDIR) $(shell cat packages)
 	cp --recursive --preserve=timestamps --backup --suffix=.pacnew rootfs/* $(TMPDIR)/
 	artools-chroot $(TMPDIR) locale-gen
 	artools-chroot $(TMPDIR) pacman-key --init
-	artools-chroot $(TMPDIR) pacman-key --populate artix
+	artools-chroot $(TMPDIR) pacman-key --populate artix,
 	artools-chroot $(TMPDIR) pacman-key --populate archlinux
 	tar --numeric-owner --xattrs --acls --exclude-from=exclude -C $(TMPDIR) -c . -f dockerfile/base/artixlinux.tar
 	rm -rf $(TMPDIR)
