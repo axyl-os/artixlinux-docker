@@ -6,6 +6,7 @@ DOCKER_IMAGE_RUNIT:=runit
 
 rootfs:
 	$(eval TMPDIR := $(shell mktemp -d))
+	cp /usr/share/artools/pacman-docker.conf rootfs/etc/pacman.conf
 	env -i basestrap -C rootfs/etc/pacman.conf -c -G -M $(TMPDIR) $(shell cat packages)
 	cp --recursive --preserve=timestamps --backup --suffix=.pacnew rootfs/* $(TMPDIR)/
 	artools-chroot $(TMPDIR) locale-gen
