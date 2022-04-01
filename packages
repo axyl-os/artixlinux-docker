@@ -3,5 +3,5 @@ sed
 grep
 gzip
 pacman
-opensysusers
+esysusers
 util-linux
