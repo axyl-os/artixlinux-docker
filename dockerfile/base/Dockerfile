@@ -9,6 +9,8 @@ RUN sh -c 'ls usr/lib/sysusers.d/*.conf | /usr/bin/sysusers '
 RUN pacman-key --init && pacman-key --populate artix
 RUN rm -rf etc/pacman.d/gnupg/{openpgp-revocs.d/,private-keys-v1.d/,pugring.gpg~,gnupg.S.}*
 
+# sync the package databases
+RUN pacman -Syu
 
 ENV LANG=en_US.UTF-8
 CMD ["/usr/bin/bash"]
