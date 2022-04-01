@@ -1,8 +1,8 @@
-DOCKER_USER:=ccromer
-DOCKER_ORGANIZATION=artixlinux
-DOCKER_IMAGE_BASE:=base
-DOCKER_IMAGE_OPENRC:=openrc
-DOCKER_IMAGE_RUNIT:=runit
+DOCKER_USER:=angelofallaria
+DOCKER_ORGANIZATION=angelofallaria
+DOCKER_IMAGE_BASE=artix-base
+DOCKER_IMAGE_OPENRC=artix-openrc
+DOCKER_IMAGE_RUNIT=artix-runit
 
 rootfs:
 	$(eval TMPDIR := $(shell mktemp -d))
