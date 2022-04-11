@@ -30,7 +30,6 @@ docker-image-test: docker-image
 	docker run --rm $(DOCKER_ORGANIZATION)/$(DOCKER_IMAGE_BASE) sh -c "/usr/bin/pacman -Syu --noconfirm grep && locale | grep -q UTF-8"
 
 docker-push:
-	docker login -u $(DOCKER_USER)
 	docker push $(DOCKER_ORGANIZATION)/$(DOCKER_IMAGE_BASE)
 	docker push $(DOCKER_ORGANIZATION)/$(DOCKER_IMAGE_OPENRC)
 	docker push $(DOCKER_ORGANIZATION)/$(DOCKER_IMAGE_RUNIT)
